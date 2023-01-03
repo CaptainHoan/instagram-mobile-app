@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { auth, db } from '../../../firebase'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 
 const SignUp = () => {
 
@@ -13,11 +13,21 @@ const SignUp = () => {
 
   const signUp = async() => {
     await createUserWithEmailAndPassword(auth, email, password)
-    try{
-      //sign Up user
-    }catch(err:any) {
-      console.log(err.message)
-    }
+    .then(async(userCredential) => {
+      // Signed in 
+      const userId = await userCredential.user.uid;
+      console.log(userId);
+      setDoc(doc(db, 'users', userId), {
+        email: email,
+        username: userName,
+        id: userId,
+        timestamp: serverTimestamp()
+      })
+      // ...
+    })
+    .catch((error) => {
+      console.log(error.message)
+    });
   }
 
   return (
