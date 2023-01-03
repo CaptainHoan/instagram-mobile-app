@@ -1,15 +1,23 @@
 import { View, Text, SafeAreaView, Image, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import { LogNavigationProp } from '../../types/LogType'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../../../firebase'
 
 const Login = () => {
 
-  const navigation = useNavigation()
+  const navigation = useNavigation<LogNavigationProp>()
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
 
-  const signIn = () => {
-
+  const signIn = async() => {
+    await signInWithEmailAndPassword(auth, email, password)
+    try{
+      //sign in user
+    }catch (err: any) {
+      console.log(err.message)
+    }
   }
 
   return (

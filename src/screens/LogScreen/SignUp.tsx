@@ -1,6 +1,9 @@
 import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { auth, db } from '../../../firebase'
+import { doc, setDoc } from 'firebase/firestore'
 
 const SignUp = () => {
 
@@ -8,8 +11,13 @@ const SignUp = () => {
   const [password, setPassword] = useState<string>('')
   const [userName, setUserName] = useState<string>('')
 
-  const signUp = () => {
-
+  const signUp = async() => {
+    await createUserWithEmailAndPassword(auth, email, password)
+    try{
+      //sign Up user
+    }catch(err:any) {
+      console.log(err.message)
+    }
   }
 
   return (

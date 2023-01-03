@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
-import LogNavigation from './src/navigation/LogNavigation';
+import RootStack from './src/navigation/RootStack';
 
 export default function App() {
-  return (<LogNavigation />)
+  return <RootStack />
 }
