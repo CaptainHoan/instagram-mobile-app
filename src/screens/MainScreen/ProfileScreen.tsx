@@ -39,7 +39,7 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
         </Text>
         <View className='flex-row items-center space-x-5'>
           <TouchableOpacity onPress={() => navigation.navigate('ADD')}>
-          <Feather name="plus-square" size={30} color="black" />
+            <Feather name="plus-square" size={30} color="black" />
           </TouchableOpacity>
           <TouchableOpacity>
             <FontAwesome5 name="bars" size={24} color="black" />
