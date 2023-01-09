@@ -12,14 +12,6 @@ const MainStack = createNativeStackNavigator()
 
 const MainNavigation = () => {
 
-  const signOutUser = async() => {
-    await signOut(auth)
-    .then (() => {
-      //signOut user
-    })
-    .catch(err => console.log(err.message))
-  }
-
   return (
     <NavigationContainer>
       <MainStack.Navigator screenOptions={{headerShown: false}}>

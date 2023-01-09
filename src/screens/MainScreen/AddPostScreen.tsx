@@ -4,8 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../../firebase';
 
-const AddPostScreen = () => {
+const AddPostScreen = ({route}) => {
+
+    const currentUser = auth.currentUser
+
+     //check if user is null
+    if(currentUser === null) return
+    
+    const {username, profilePicture} = route.params
 
     const navigation = useNavigation()
     const [status, setStatus] = useState<string>('')
@@ -29,6 +38,24 @@ const AddPostScreen = () => {
     
       };
 
+      //add Post to database
+
+      const sharePost = async() => {
+        if(status.length > 0) {
+            await addDoc(collection(db, 'posts'), {
+                username: username,
+                profilePicture: profilePicture,
+                status: status,
+                image: image,
+                timestamp: serverTimestamp(),
+                post_id: currentUser.uid
+            })
+            .then(() => navigation.goBack())
+            .catch(error => console.log(error.message))
+        }
+        
+      }
+
   return (
     <SafeAreaView className="flex-1 bg-black">
         <View className="flex-row items-center justify-between mx-3 mt-2">
@@ -37,7 +64,7 @@ const AddPostScreen = () => {
             </TouchableOpacity>
             
             <Text className="font-bold text-white text-xl">New Post</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={sharePost}>
                 <Text className="text-blue-500 font-bold text-lg">Share</Text>
             </TouchableOpacity>
         </View>
