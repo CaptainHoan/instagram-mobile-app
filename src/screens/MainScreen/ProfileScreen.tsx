@@ -1,6 +1,6 @@
 import { View, Text, SafeAreaView, Image, ScrollView, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { collection, doc, onSnapshot } from 'firebase/firestore'
+import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { auth, db } from '../../../firebase'
 import { AUTH_USER_PROFILE, POST_TYPE } from '../../types/currentUserType'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -34,7 +34,7 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
 
   //fetch posts of current user
   useEffect(() => {
-    onSnapshot(collection(db, 'posts'), (snapshot) => {
+    onSnapshot(query(collection(db, 'posts'), orderBy('timestamp', 'desc')), (snapshot) => {
       const posts = snapshot.docs.filter(doc => doc.data().post_id === currentUser.uid).map(doc => ({
         ...doc.data()
       }))

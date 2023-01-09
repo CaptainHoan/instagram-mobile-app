@@ -13,4 +13,5 @@ export type POST_TYPE = {
     image: string,
     profilePicture: string,
     timestamp: Date,
+    id: string
 }

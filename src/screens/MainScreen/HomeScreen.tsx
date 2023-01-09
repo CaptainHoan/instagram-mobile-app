@@ -1,26 +1,72 @@
 import { View, Text, SafeAreaView, Image, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { FontAwesome5 } from '@expo/vector-icons';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '../../../firebase';
-import { POST_TYPE } from '../../types/currentUserType';
-import { Fontisto, Feather  } from '@expo/vector-icons';
+import { Timestamp, addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { auth, db } from '../../../firebase';
+import { AUTH_USER_PROFILE, POST_TYPE } from '../../types/currentUserType';
+import { Fontisto, Feather, AntDesign   } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
 
-  const [posts, setPosts] = useState<POST_TYPE[]>([])
+  const currentUser = auth.currentUser
+  //check if user is null
+  if(currentUser === null) return 
 
-  useEffect(() => {
-    onSnapshot(collection(db, 'posts'), (snapshot) => {
+  const navigation = useNavigation()
+  const [loggedInUser, setLoggedInUser] = useState<AUTH_USER_PROFILE[]>([])
+  const [posts, setPosts] = useState<POST_TYPE[]>([])
+  const [isLiked, setIsLiked] = useState<boolean>(false)
+  const [postLiked, setPostLiked] = useState<string>('')
+
+  //fetch current user infos
+  useEffect(() => 
+    onSnapshot(collection(db, 'users'), (snapshot) => {
+      const profile = snapshot.docs.filter(doc => doc.id === currentUser.uid).map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setLoggedInUser(profile);
+    })  
+,[])
+
+  //fetch posts
+  useEffect(() => 
+    onSnapshot(query(collection(db, 'posts'), orderBy('timestamp', 'desc')), (snapshot) => {
       const posts = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }))
       setPosts(posts)
     })
-  },[db])
+  ,[db])
 
-  console.log('posts are',posts)
+  //fetch Liked
+  useEffect(() => 
+    onSnapshot(collection(db, 'posts', 'liked'), (snapshot) => {
+      const liked = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      console.log('liked is', liked)
+      //setIsLiked(liked.liked)
+    })
+  ,[db])
+
+  //console.log('posts are',posts)
+  //handle when post is liked
+  const handleLikeFunc = (post: POST_TYPE) => {
+    setIsLiked(true)
+    setPostLiked(post.id)
+    if(isLiked === false) {
+      addDoc(collection(db, 'posts', post.id, 'liked'), {
+        userWhoLiked: currentUser.uid,
+        liked: true,
+        timestamp: serverTimestamp()
+      })
+    }
+    if(isLiked === true) return
+  }
 
   return (
     <SafeAreaView className='flex-1'>
@@ -68,10 +114,14 @@ const HomeScreen = () => {
 
               {/**likes, comments icon */}
               <View className='flex-row items-center space-x-3 mx-4'>
-                <TouchableOpacity>
-                  <FontAwesome5 name="heart" size={24} color="black" />
+                <TouchableOpacity onPress={() => handleLikeFunc(post)}>
+                  <AntDesign 
+                    name="heart" 
+                    size={24} 
+                    color={isLiked === true && postLiked === post.id ? "red" : 'gray'} 
+                  />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Comment')}>
                   <Feather name="message-circle" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity>

@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomNavigator from './BottomNavigator';
 import EditProfileScreen from '../screens/MainScreen/EditProfileScreen';
 import AddPostScreen from '../screens/MainScreen/AddPostScreen';
+import CommentScreen from '../screens/MainScreen/CommentScreen';
 
 const MainStack = createNativeStackNavigator()
 
@@ -21,6 +22,7 @@ const MainNavigation = () => {
         <MainStack.Group>
           <MainStack.Screen name="Edit" component={EditProfileScreen} options={{presentation: 'fullScreenModal'}}/>
           <MainStack.Screen name="ADD" component={AddPostScreen} />
+          <MainStack.Screen name="Comment" component={CommentScreen} />
         </MainStack.Group>
       </MainStack.Navigator>
     </NavigationContainer>
