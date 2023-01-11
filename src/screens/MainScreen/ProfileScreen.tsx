@@ -88,8 +88,8 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
             <View>
               <View className="flex-row items-center justify-between space-x-7">
                 <View>
-                  <Text className='text-center font-bold'>0</Text>
-                  <Text className='font-semibold'>post</Text>
+                  <Text className='text-center font-bold'>{posts.length}</Text>
+                  <Text className='font-semibold'>{posts.length > 1 ? 'posts' : 'post'}</Text>
                 </View>
                 <View>
                   <Text className='text-center font-bold'>0</Text>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { FontAwesome5 } from '@expo/vector-icons';
 import { collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { auth, db } from '../../../firebase';
-import { POST_TYPE } from '../../types/currentUserType';
+import { AUTH_USER_PROFILE, POST_TYPE } from '../../types/currentUserType';
 import { Feather, AntDesign   } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -15,6 +15,18 @@ const HomeScreen = () => {
 
   const navigation = useNavigation()
   const [posts, setPosts] = useState<POST_TYPE[]>([])
+  const [loggedInUser, setLoggedInUser] = useState<AUTH_USER_PROFILE[]>([])
+
+  //fetch loggedUser
+  useEffect(() => 
+    onSnapshot(collection(db, 'users'), (snapshot) => {
+      const profile = snapshot.docs.filter(doc => doc.id === currentUser.uid).map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setLoggedInUser(profile);
+    })  
+  ,[])
 
   //fetch posts
   useEffect(() => 
@@ -78,6 +90,7 @@ const HomeScreen = () => {
                 navigation={navigation}
                 post={post}
                 currentUser = {currentUser}
+                loggedInUser = {loggedInUser}
               />
 
               {/**post Bio */}
@@ -85,11 +98,6 @@ const HomeScreen = () => {
                 <Text className='text-gray-900 text-base '>
                   <Text className='font-bold text-black'>{post?.username} { }</Text> 
                   {post.status}</Text>
-              </View>
-
-              {/**likes, comments  */}
-              <View>
-
               </View>
 
               <View className='h-0.5 bg-slate-200'></View>
@@ -101,7 +109,7 @@ const HomeScreen = () => {
   )
 }
 
-const PostFooter = ({ post, navigation, currentUser}: any) => {
+const PostFooter = ({ post, navigation, currentUser, loggedInUser}: any) => {
 
   const [isLiked, setIsLiked] = useState<boolean | null>(null)
   const [postLiked, setPostLiked] = useState<string[]>([])
@@ -146,7 +154,12 @@ const PostFooter = ({ post, navigation, currentUser}: any) => {
             color={isLiked === true && postLiked?.includes(currentUser.uid) ? "red" : 'gray'} 
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Comment')}>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Comment', {
+            loggedInUser: loggedInUser,
+            post: post
+          })}
+        >
           <Feather name="message-circle" size={24} color="black" />
         </TouchableOpacity>
         <TouchableOpacity>
@@ -157,7 +170,9 @@ const PostFooter = ({ post, navigation, currentUser}: any) => {
         postLiked.length !== 0
         ? (
           <View className='mx-4 mt-2'>
-            <Text className='font-semibold'>{postLiked?.length > 0 && postLiked.length} {postLiked.length > 1 ? 'likes' : 'like'}</Text>
+            <Text className='font-semibold'>
+              {postLiked?.length > 0 && postLiked.length} {postLiked.length > 1 ? 'likes' : 'like'}
+            </Text>
           </View>
         )
         : null
