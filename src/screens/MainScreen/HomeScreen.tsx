@@ -66,7 +66,11 @@ const HomeScreen = () => {
               
               <View className='flex-row items-center justify-between mx-4'>
                 <View className='flex-row items-center space-x-3'>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    if (post.post_id !== currentUser.uid) {
+                      navigation.navigate('User')
+                    }
+                  }}>
                     <Image
                       source={{uri: post?.profilePicture}}
                       style={{width: 35, height: 35}} className="rounded-full" 
@@ -99,6 +103,8 @@ const HomeScreen = () => {
                   <Text className='font-bold text-black'>{post?.username} { }</Text> 
                   {post.status}</Text>
               </View>
+
+              <PostComment post={post}/>
 
               <View className='h-0.5 bg-slate-200'></View>
             </View>
@@ -177,8 +183,40 @@ const PostFooter = ({ post, navigation, currentUser, loggedInUser}: any) => {
         )
         : null
       }
-      
-      
+    </View>
+  )
+}
+
+const PostComment = ({post}: any) => {
+
+  const [comments, setComments] = useState([])
+
+  //fetch comments
+  useEffect(() => {
+    onSnapshot(query(collection(db, 'posts', post.id, 'comments'), 
+    orderBy('timestamp', 'desc')), 
+    (snapshot) => {
+      const comments = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setComments(comments)
+    })
+  },[db])
+
+  return (
+    <View className='mx-4 mt-2'>
+      {
+        comments.length !== 0
+        ? (
+          <Text className='font-semibold text-gray-500'>
+            View {comments.length !== 1 ? 'all' : null} {''}
+            {comments.length} {''}
+            {comments.length > 1 ? 'comments' : 'comment'}
+          </Text>
+        )
+        : null
+      }
     </View>
   )
 }

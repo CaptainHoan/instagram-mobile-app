@@ -40,7 +40,9 @@ const CommentScreen = ({route}: any) => {
   }
 
   useEffect(() => {
-    onSnapshot(query(collection(db, 'posts', post.id, 'comments'), orderBy('timestamp', 'desc')), (snapshot) => {
+    onSnapshot(query(collection(db, 'posts', post.id, 'comments'), 
+    orderBy('timestamp', 'desc')), 
+    (snapshot) => {
       const comments = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -102,7 +104,6 @@ const CommentScreen = ({route}: any) => {
           </ScrollView>
         </TouchableWithoutFeedback>
         
-
             {/** comment input*/}
             <View className='flex-row items-center mx-2 mb-2'>
               <Image 
