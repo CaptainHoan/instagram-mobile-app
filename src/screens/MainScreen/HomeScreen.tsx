@@ -1,11 +1,21 @@
 import { View, Text, SafeAreaView, Image, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { FontAwesome5 } from '@expo/vector-icons';
-import { collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { 
+  collection, 
+  doc, 
+  onSnapshot, 
+  orderBy, 
+  query, 
+  serverTimestamp, 
+  setDoc, 
+  where 
+} from 'firebase/firestore';
 import { auth, db } from '../../../firebase';
 import { AUTH_USER_PROFILE, POST_TYPE } from '../../types/currentUserType';
 import { Feather, AntDesign   } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+
 
 const HomeScreen = () => {
 
@@ -39,8 +49,6 @@ const HomeScreen = () => {
     })
   ,[db])
 
-  console.log(posts)
-
   return (
     <SafeAreaView className='flex-1'>
       <View className='flex-row items-center justify-between'>
@@ -68,7 +76,10 @@ const HomeScreen = () => {
                 <View className='flex-row items-center space-x-3'>
                   <TouchableOpacity onPress={() => {
                     if (post.post_id !== currentUser.uid) {
-                      navigation.navigate('User')
+                      navigation.navigate('User', {
+                        post: post,
+                         loggedInUser: loggedInUser
+                      })
                     }
                   }}>
                     <Image
@@ -129,17 +140,13 @@ const PostFooter = ({ post, navigation, currentUser, loggedInUser}: any) => {
         id: doc.id,
         ...doc.data()
       }))
-      console.log('likes is', likes)
       setIsLiked(likes[0]?.liked)
       const postLiked = snapshot.docs.map(doc => (
         doc.id
       ))
       setPostLiked(postLiked)
-      console.log('postLiked is',postLiked)
     })
   ,[isLiked])
-
-  console.log(isLiked)
 
   //handle when post is liked
   const handleLikeFunc = (post: POST_TYPE) => {

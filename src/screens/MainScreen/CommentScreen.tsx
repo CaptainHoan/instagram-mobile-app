@@ -14,7 +14,14 @@ import {
 import React, {useEffect, useState} from 'react'
 import { Ionicons, Feather  } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { 
+  addDoc, 
+  collection, 
+  onSnapshot, 
+  orderBy, 
+  query, 
+  serverTimestamp,  
+} from 'firebase/firestore';
 import { db } from '../../../firebase';
 
 const {width} = Dimensions.get('screen')

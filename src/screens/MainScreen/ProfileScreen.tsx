@@ -1,14 +1,13 @@
 import { View, Text, SafeAreaView, Image, ScrollView, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { auth, db } from '../../../firebase'
 import { AUTH_USER_PROFILE, POST_TYPE } from '../../types/currentUserType'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome5, AntDesign, Feather  } from '@expo/vector-icons';
 import { signOut } from 'firebase/auth'
 
-const {width, height}: {width: number, height: number} = Dimensions.get('screen')
+const {width}: {width: number} = Dimensions.get('screen')
 
 const ProfileScreen = ({navigation}: {navigation: any}) => {
 
@@ -20,6 +19,8 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
   const [posts, setPosts] = useState<POST_TYPE[]>([])
   const [profile, setProfile] = useState<AUTH_USER_PROFILE[]>([])
   const [profilePic, setProfilePic] = useState<string>('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8zaXQFY2XI7H0QGiQlXGJAdcUMh0MFlmnUQ&usqp=CAU')
+  const [followers, setFollowers] = useState([])
+  const [followings, setFollowings] = useState([])
 
   useEffect(() => 
     onSnapshot(collection(db, 'users'), (snapshot) => {
@@ -42,8 +43,6 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
     })
   },[db])
 
-  console.log(posts)
-
   //sign out users
   const signOutUser = async() => {
     await signOut(auth)
@@ -52,6 +51,27 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
     })
     .catch(err => console.log(err.message))
   }
+
+  //fetch following
+  useEffect(() => 
+    onSnapshot(collection(db, 'users', currentUser.uid, 'followings'), (snapshot) => {
+      const followings = snapshot.docs.map(doc => ({
+        ...doc.data()
+      }))
+      setFollowings(followings)
+    })
+  , [db])
+
+  //fetch followers
+  useEffect(() => 
+    onSnapshot(collection(db, 'users', currentUser.uid, 'followers'), (snapshot) => {
+      const followers = snapshot.docs.map(doc => ({
+        ...doc.data()
+      }))
+      setFollowers(followers)
+    })
+  , [db])
+  
 
   return (
     <SafeAreaView className='flex-1'>
@@ -92,12 +112,12 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
                   <Text className='font-semibold'>{posts.length > 1 ? 'posts' : 'post'}</Text>
                 </View>
                 <View>
-                  <Text className='text-center font-bold'>0</Text>
-                  <Text className='font-semibold'>follower</Text>
+                  <Text className='text-center font-bold'>{followers.length}</Text>
+                  <Text className='font-semibold'>{followers.length > 1 ? 'followers' : 'follower'}</Text>
                 </View>
                 <View>
-                  <Text className='text-center font-bold'>0</Text>
-                  <Text className='font-semibold'>following</Text>
+                  <Text className='text-center font-bold'>{followings.length}</Text>
+                  <Text className='font-semibold'>{followings.length > 1 ? 'followings' : 'following'}</Text>
                 </View>
               </View>
               <TouchableOpacity className="bg-gray-300 p-3 rounded-lg mt-3"
@@ -114,7 +134,7 @@ const ProfileScreen = ({navigation}: {navigation: any}) => {
           </Text>
         </View>
 
-        <View className='h-1 bg-gray-200 mt-4'></View>
+        <View className='h-0.5 bg-gray-300 mt-4'></View>
 
         {/**posts goes here */}
         <View style={{flexWrap: 'wrap', flexDirection: 'row', flex: 1}}>
